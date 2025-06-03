@@ -4,6 +4,7 @@
     Author     : HP
 --%>
 
+<%--<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -12,6 +13,112 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
-    </body>
+        <!-- CHỗ để search ủe -->
+        <div class="searchZone">
+            <h2>Search User</h2>
+            <!-- form để search -->
+
+            <form action="UserController?action=search" method="post">
+                <!-- chỗ nhập tên để search -->
+                <input type="text" name="searchBox" placeholder="Enter user name">
+                <!-- nút submit -->
+                <input type="submit" name="searchButton" value="search">
+            </form>
+        </div>
+        <button onclick="addUser()" class="addButton">Add</button>
+        <!--form để insert user-->
+        <form action="UserController?action=insert" id="form-insert" style="display: none" class="form-container" method="post">
+            <h2>Insert new user</h2>
+            <table>
+                <tr>
+                    <td>User ID</td>
+                    <td>
+                        <input type="text" name="userIDInsert" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Full Name</td>
+                    <td>
+                        <input type="text" name="fullNameInsert" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Role ID</td>
+                    <td>
+                        <input type="text" name="roleIDInsert" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Pasword</td>
+                    <td><input type="password" name="passwordInsert" required></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button type="submit" name="submitForm">Add Product</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <!-- List user -->
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>User ID</th>
+                    <th>Full Name</th>
+                    <th>Role ID</th>
+                    <th>Password</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            <form action="UserController" method="POST">
+                <tr>
+                    <!-- No: dùng để đến số dùng -->
+                    <td>${record.count}</td>
+                    <%-- --%>
+                    <%--Hiển thị userID--%>
+                    <td>
+                        <input type="hidden" name="userID" value="${user.userID}"/>
+                    </td>
+                    <%--Hiển thị full name--%>
+                    <td>
+                        <input type="text"  name="fullName"   value="${user.fullName}" required/>
+                    </td>
+                    <%--Hiển thị role--%>
+                    <td>
+                        <input type="text"  name="roleID" value="${user.roleID}" required/>
+                    </td>
+                    <%--hiển thị password--%>
+                    <td>
+                        <input type="text"  name="password"  value="${user.password}" required/>
+                    </td>
+                    <%--Hành độngc ảu người dùng--%>
+                    <td style="display: inline">
+                        <form action="UserController?action=">
+                            <input type="button" name="updateButton" value="update">
+                            <input type="button" name="removeButton" value="remove">
+                        </form>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+    <script>
+        function displayForm() {
+            let form = document.querySelector("#form-insert");
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+        function addUser() {
+            displayForm();
+        }
+    </script>
+</body>
+
 </html>

@@ -69,8 +69,7 @@ public class UserDAO extends utils {
         return users;
     }
 
-    public boolean insertUser(User user) {
-        boolean isInserted = false;
+    public void insertUser(User user) {
         String query = "INSERT INTO [dbo].[tblUsers]\n"
                 + "           ([userID]\n"
                 + "           ,[fullName]\n"
@@ -84,13 +83,12 @@ public class UserDAO extends utils {
             preparedStatement.setObject(2, user.getFullName());
             preparedStatement.setObject(3, user.getRoleID());
             preparedStatement.setObject(4, user.getPassword());
-            isInserted = preparedStatement.executeUpdate() > 0;
+            preparedStatement.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         closeConnection();
-        return isInserted;
     }
 
     public List<User> searchByName(String name) {
@@ -105,15 +103,50 @@ public class UserDAO extends utils {
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setObject(1, "%" + name + "%");
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {                
+            while (resultSet.next()) {
                 String userID = resultSet.getString("userID");
                 String roleID = resultSet.getString("roleID");
                 String password = resultSet.getString("password");
                 users.add(new User(userID, name, roleID, password));
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         closeConnection();
         return users;
+    }
+
+    public void deleteUser(User user) {
+        String sqlStatement = "DELETE FROM [dbo].[tblUsers]\n"
+                + "      WHERE [userID] = ?";
+        getConnection();
+        try {
+            preparedStatement = connection.prepareStatement(sqlStatement);
+            preparedStatement.setObject(1, user.getUserID());
+            preparedStatement.executeUpdate();
+            System.out.println("Delete user" + user.getFullName() + "sucessfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        closeConnection();
+    }
+
+    public void updateUser(User user) {
+        String sqlStatement = "UPDATE [dbo].[tblUsers]\n"
+                + "   SET [fullName] = ?\n"
+                + "      ,[roleID] = ?\n"
+                + "      ,[password] = ?\n"
+                + " WHERE [userID] = ?";
+        getConnection();
+        try {
+            preparedStatement = connection.prepareStatement(sqlStatement);
+            preparedStatement.setObject(1, user.getFullName());
+            preparedStatement.setObject(2, user.getRoleID());
+            preparedStatement.setObject(3, user.getPassword());
+            preparedStatement.setObject(4, user.getUserID());
+            preparedStatement.executeLargeUpdate();
+        } catch (Exception e) {
+        }
+        closeConnection();
     }
 }
