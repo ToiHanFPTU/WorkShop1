@@ -60,15 +60,18 @@ public class UserController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserDAO userDAO = new UserDAO();
-        HttpSession session = request.getSession();
-        List<User> users = (List<User>) session.getAttribute("userList");
-        if (users == null) {
-            users = userDAO.listAll();
+        try {
+            UserDAO userDAO = new UserDAO();
+            HttpSession session = request.getSession();
+            List<User> users = (List<User>) session.getAttribute("userList");
+            if (users == null) {
+                users = userDAO.listAll();
+            }
+            session.setAttribute("userList", users);
+            request.getRequestDispatcher("userPage.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        session.setAttribute("userList", users);
-        request.getRequestDispatcher("userPage.jsp").forward(request, response);
     }
 
     /**
@@ -82,8 +85,9 @@ public class UserController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        UserDAO userDAO = new UserDAO();
         String action = request.getParameter("action");
-        List<User> users = null;
+        List<User> users;
         if (action == null) {
             action = "";
         }
@@ -101,7 +105,8 @@ public class UserController extends HttpServlet {
                 users = deleteUser(request, response);
                 break;
             default:
-                throw new AssertionError();
+                users = userDAO.listAll();
+                break;
         }
         HttpSession session = request.getSession();
         session.setAttribute("userList", users);
@@ -120,14 +125,13 @@ public class UserController extends HttpServlet {
 
     private List<User> searchUser(HttpServletRequest request, HttpServletResponse response) {
         //đã tìm thấy search box và lấy tên ra
-        
+
         String name = request.getParameter("searchBox");
         //debug cho bọn bay xem có lấy được tên để search hay không
         if (name != null) {
             //nếu tìm thấy thì trẻ về tên của những user
             System.out.println("found search box with name" + name);
-        }
-        else {
+        } else {
             //còn không thì trả về tên rỗng
             name = "";
         }
@@ -139,19 +143,85 @@ public class UserController extends HttpServlet {
             return userList;
         }
         //không thì trả về null
-        return null;
+        return new ArrayList<>();
     }
 
     private List<User> insertUser(HttpServletRequest request, HttpServletResponse response) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        HttpSession session = request.getSession();
+//khai báo lớp UserDAO
+        UserDAO userDAO = new UserDAO();
+        //lấy userID từ form
+        String userID = request.getParameter("userIDInsert");
+        //check userID có bị trùng trong danh sách hay không
+        if (isDuplicateUserID(userID)) {
+            //nếu trùng thì gửi lỗi
+            request.getSession().setAttribute("msgError", "Duplicated User ID");
+            //trả về danh sách ban đầu
+            return userDAO.listAll();
+        }
+        //lấy full name từ form
+        String fullName = request.getParameter("fullNameInsert");
+        //lấy role ID từ form
+        String roleID = request.getParameter("roleIDInsert");
+        //check xem role id có đúng là ad hay nv
+        if (isWrongRole(roleID)) {
+            //sai thì gửi lỗi đến trang userPage.jsp
+            request.getSession().setAttribute("msgError", "Role ID must be AD or NV");
+            //trả về danh sách ban đầu
+            return userDAO.listAll();
+        }
+        //lấy password từ form
+        String password = request.getParameter("passwordInsert");
+        //tạo 1 đối tượng user
+        User user = new User(userID, fullName, roleID, password);
+        //gọi hàm insert và truyền đối tượng mới tại vô
+        userDAO.insertUser(user);
+        //xóa sesstion thông báo lỗi khi hoàn thành
+        session.removeAttribute("msgError");
+        //refresh lại list
+        return userDAO.listAll();
     }
 
     private List<User> updateUser(HttpServletRequest request, HttpServletResponse response) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        UserDAO userDAO = new UserDAO();
+        String userID = request.getParameter("userID");
+        String fullName = request.getParameter("fullName");
+        String roleID = request.getParameter("roleID");
+        if (isWrongRole(roleID)) {
+            request.getSession().setAttribute("msgError", "Role ID must be AD or NV");
+            return userDAO.listAll();
+        }
+        String password = request.getParameter("password");
+        User user = new User(userID, fullName, roleID, password);
+        userDAO.updateUser(user);
+        HttpSession session = request.getSession();
+        //xóa sesstion thông báo lỗi khi hoàn thành
+        session.removeAttribute("msgError");
+        return userDAO.listAll();
     }
 
     private List<User> deleteUser(HttpServletRequest request, HttpServletResponse response) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String userID = request.getParameter("userID");
+        UserDAO userDAO = new UserDAO();
+        userDAO.deleteUser(userID);
+        return userDAO.listAll();
     }
 
+    private boolean isDuplicateUserID(String userID) {
+        UserDAO userDAO = new UserDAO();
+        List<User> users = userDAO.listAll();
+        for (User user : users) {
+            if (user.getUserID().equalsIgnoreCase(userID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isWrongRole(String roleID) {
+        if (roleID.equalsIgnoreCase("ad") || roleID.equalsIgnoreCase("nv")) {
+            return false;
+        }
+        return true;
+    }
 }

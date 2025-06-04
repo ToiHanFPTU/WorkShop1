@@ -116,15 +116,15 @@ public class UserDAO extends utils {
         return users;
     }
 
-    public void deleteUser(User user) {
+    public void deleteUser(String userID) {
         String sqlStatement = "DELETE FROM [dbo].[tblUsers]\n"
                 + "      WHERE [userID] = ?";
         getConnection();
         try {
             preparedStatement = connection.prepareStatement(sqlStatement);
-            preparedStatement.setObject(1, user.getUserID());
+            preparedStatement.setObject(1, userID);
             preparedStatement.executeUpdate();
-            System.out.println("Delete user" + user.getFullName() + "sucessfully");
+            System.out.println("Delete user sucessfully");
         } catch (Exception e) {
             e.printStackTrace();
         }
