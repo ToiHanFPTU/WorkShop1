@@ -4,6 +4,7 @@
     Author     : HP
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -55,7 +56,7 @@
                 <tr>
                     <td></td>
                     <td>
-                        <button type="submit" name="submitForm">Add Product</button>
+                        <button type="submit" name="submitForm">Add User</button>
                     </td>
                 </tr>
             </table>
@@ -73,15 +74,18 @@
                 </tr>
             </thead>
             <tbody>
-
-            <form action="UserController" method="POST">
-                <tr>
+                <c:forEach items="${userList}" var="user" varStatus="record">
+                    <tr>
+                <form action="UserController" method="POST">
                     <!-- No: dùng để đến số dùng -->
-                    <td>${record.count}</td>
-                    <%-- --%>
+                    <td>
+                        <input type="text" name="No" value="${record.count}" disabled>
+                    </td>
+                    <%--userID này để delete hoặc update--%>
+                    <input type="hidden" name="userID" value="${user.userID}" />
                     <%--Hiển thị userID--%>
                     <td>
-                        <input type="hidden" name="userID" value="${user.userID}"/>
+                        <input type="text" value="${user.userID}" disabled/>
                     </td>
                     <%--Hiển thị full name--%>
                     <td>
@@ -96,29 +100,31 @@
                         <input type="text"  name="password"  value="${user.password}" required/>
                     </td>
                     <%--Hành độngc ảu người dùng--%>
-                    <td style="display: inline">
-                        <form action="UserController?action=">
-                            <input type="button" name="updateButton" value="update">
-                            <input type="button" name="removeButton" value="remove">
-                        </form>
+                    <td class="actions">
+                        <button type="submit" name="action" value="update">Update</button>
+                        <button type="submit" name="action" value="remove">Delete</button>
                     </td>
-                </tr>
-            </form>
-        </tbody>
-    </table>
-    <script>
-        function displayForm() {
-            let form = document.querySelector("#form-insert");
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-            }
+                </form>
+            </tr>
+        </c:forEach>
+
+
+
+    </tbody>
+</table>
+<script>
+    function displayForm() {
+        let form = document.querySelector("#form-insert");
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
         }
-        function addUser() {
-            displayForm();
-        }
-    </script>
+    }
+    function addUser() {
+        displayForm();
+    }
+</script>
 </body>
 
 </html>

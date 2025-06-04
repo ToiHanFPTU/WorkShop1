@@ -183,6 +183,7 @@ public class UserController extends HttpServlet {
     }
 
     private List<User> updateUser(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession();
         UserDAO userDAO = new UserDAO();
         String userID = request.getParameter("userID");
         String fullName = request.getParameter("fullName");
@@ -192,9 +193,17 @@ public class UserController extends HttpServlet {
             return userDAO.listAll();
         }
         String password = request.getParameter("password");
-        User user = new User(userID, fullName, roleID, password);
+
+        if (userID == null || userID.isEmpty()) {
+            session.setAttribute("msgError", "User ID is missing");
+            return userDAO.listAll();
+        }
+        User user = new User();
+        user.setFullName(fullName);
+        user.setPassword(password);
+        user.setRoleID(roleID);
+        user.setUserID(userID);
         userDAO.updateUser(user);
-        HttpSession session = request.getSession();
         //xóa sesstion thông báo lỗi khi hoàn thành
         session.removeAttribute("msgError");
         return userDAO.listAll();

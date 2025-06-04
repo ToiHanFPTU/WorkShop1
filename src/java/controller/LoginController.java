@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.User;
 
 /**
@@ -80,11 +81,17 @@ public class LoginController extends HttpServlet {
             User userLogin = userDAO.login(username, password);
             System.out.println("Found" + userLogin.toString());
             if (userLogin == null) {
+                System.out.println("Login failed: user not found");
                 request.setAttribute("error", "Incorrect username or password");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             } else {
-                response.sendRedirect("UserController");
+                System.out.println("Found: " + userLogin.toString());
+                HttpSession session = request.getSession();
+                session.setAttribute("user", userLogin);
+                response.sendRedirect("UserController?action=search");
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
