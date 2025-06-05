@@ -94,26 +94,28 @@ public class UserDAO extends utils {
     public List<User> searchByName(String name) {
         List<User> users = new ArrayList<>();
         String query = "SELECT [userID]\n"
-                + "      ,[roleID]\n"
+                + "     ,[fullName] ,[roleID]\n"
                 + "      ,[password]\n"
                 + "  FROM [dbo].[tblUsers]\n"
                 + "  WHERE [fullName] LIKE ?";
         getConnection();
         try {
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setObject(1, "%" + name + "%");
+            preparedStatement.setString(1, "%" + name + "%");
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
+                String fullName = resultSet.getString("fullName");
                 String userID = resultSet.getString("userID");
                 String roleID = resultSet.getString("roleID");
                 String password = resultSet.getString("password");
-                users.add(new User(userID, name, roleID, password));
+                users.add(new User(userID, fullName, roleID, password));
             }
+            return users;
         } catch (Exception e) {
             e.printStackTrace();
         }
         closeConnection();
-        return users;
+        return null;
     }
 
     public void deleteUser(String userID) {

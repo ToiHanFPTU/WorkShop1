@@ -5,7 +5,6 @@
 --%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>--%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -14,21 +13,21 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <!-- CHỗ để search ủe -->
+        <!-- CHỗ để search user -->
         <div class="searchZone">
             <h2>Search User</h2>
             <!-- form để search -->
 
-            <form action="UserController?action=search" method="post">
+            <form action="UserController?action=searchUser" method="POST">
                 <!-- chỗ nhập tên để search -->
                 <input type="text" name="searchBox" placeholder="Enter user name">
                 <!-- nút submit -->
-                <input type="submit" name="searchButton" value="search">
+                <button type="submit" name="searchButton" value="SearchUser">Search User</button>
             </form>
         </div>
         <button onclick="addUser()" class="addButton">Add</button>
         <!--form để insert user-->
-        <form action="UserController?action=insert" id="form-insert" style="display: none" class="form-container" method="post">
+        <form action="UserController?action=insertUser" id="form-insert" style="display: none" class="form-container" method="post">
             <h2>Insert new user</h2>
             <table>
                 <tr>
@@ -82,7 +81,10 @@
                         <input type="text" name="No" value="${record.count}" disabled>
                     </td>
                     <%--userID này để delete hoặc update--%>
-                    <input type="hidden" name="userID" value="${user.userID}" />
+                    <td>
+                        <input type="hidden" name="userID" value="${user.userID}" />
+                        ${user.userID}
+                    </td>
                     <%--Hiển thị userID--%>
                     <td>
                         <input type="text" value="${user.userID}" disabled/>
@@ -101,8 +103,8 @@
                     </td>
                     <%--Hành độngc ảu người dùng--%>
                     <td class="actions">
-                        <button type="submit" name="action" value="update">Update</button>
-                        <button type="submit" name="action" value="remove">Delete</button>
+                        <button type="submit" name="action" value="updateUser">Update</button>
+                        <button type="submit" name="action" value="removeUser">Delete</button>
                     </td>
                 </form>
             </tr>
@@ -113,14 +115,19 @@
     </tbody>
 </table>
 <script>
+    //hàm này để dùng hieenrthij form
     function displayForm() {
+        //tìm cái form có id là form-insert
         let form = document.querySelector("#form-insert");
+        //nếu cái form đó ko display thì đẻ nó display
         if (form.style.display === 'none') {
             form.style.display = 'block';
         } else {
+            //không thì ngược lại
             form.style.display = 'none';
         }
     }
+    //khi bấm nút này để hiển thị ra form
     function addUser() {
         displayForm();
     }

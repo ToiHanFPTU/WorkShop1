@@ -88,7 +88,7 @@ public class LoginController extends HttpServlet {
                 System.out.println("Found: " + userLogin.toString());
                 HttpSession session = request.getSession();
                 session.setAttribute("user", userLogin);
-                response.sendRedirect("UserController?action=search");
+                response.sendRedirect("UserController");
 
             }
 
